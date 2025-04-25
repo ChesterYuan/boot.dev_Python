@@ -11,7 +11,7 @@ def initialize_game():
     clock = pygame.time.Clock()
     return screen, clock
     
-def game_loop(screen, clock):
+def game_loop(screen, clock, updatable, drawable):
     running = True
     dt = 0  # Initialize delta time
     while running:    
@@ -22,8 +22,13 @@ def game_loop(screen, clock):
         # Clear the screen
         screen.fill((0, 0, 0))
 
-        # Draw player
-        player.draw(screen)
+        # Draw all sprites
+        for sprite in drawable:
+            sprite.draw(screen)
+
+        # Update all sprites
+        for sprite in updatable:
+            sprite.update(dt)
         
         # Update the display
         pygame.display.flip()
@@ -41,14 +46,21 @@ def main():
     # Initialize the game
     screen, clock = initialize_game()
 
+    # Create sprite groups
+    updatable = pygame.sprite.Group()
+    drawable = pygame.sprite.Group()
+
+    # Set containers for Player
+    Player.containers = (updatable, drawable)
+
     # Create player
     x = SCREEN_WIDTH / 2
     y = SCREEN_HEIGHT / 2
-    player = Player(x, y)
+    player = Player(x, y, PLAYER_RADIUS)
  
     
     # Run the game loop
-    game_loop(screen, clock, player)
+    game_loop(screen, clock, updatable, drawable)
     
     # Clean up
     pygame.quit()
