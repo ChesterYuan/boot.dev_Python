@@ -17,8 +17,14 @@ class Player(CircleShape):
         self.rotation += PLAYER_TURN_SPEED * dt
 
     def update(self, dt):
+        # If player is respawning, update respawn cooldown, player cannot move
+        if self.respawn_cooldown > 0:
+            self.respawn_cooldown -= dt
+            if self.respawn_cooldown < 0:
+                self.respawn_cooldown = 0
+            return
         keys = pygame.key.get_pressed()
-
+        # Handle movement keys
         if keys[pygame.K_a]:
             self.rotate(-dt)
         if keys[pygame.K_d]:
@@ -33,10 +39,6 @@ class Player(CircleShape):
         self.shooting_cooldown -= dt
         if self.shooting_cooldown < 0:
             self.shooting_cooldown = 0
-        if self.respawn_cooldown > 0:
-            self.respawn_cooldown -= dt
-            if self.respawn_cooldown < 0:
-                self.respawn_cooldown = 0
 
     def move(self, dt):
         forward = pygame.Vector2(0, -1).rotate(self.rotation)
@@ -52,7 +54,11 @@ class Player(CircleShape):
         return [a, b, c]
     
     def draw(self, screen):
-        pygame.draw.polygon(screen, (255, 255, 255), self.triangle(), width=2)
+        if self.respawn_cooldown > 0:
+            # Blink: only draw if in certain phase of cooldown
+            if int(self.respawn_cooldown * 5) % 2 == 0:
+                return
+        pygame.draw.polygon(screen, (129, 216, 208), self.triangle(), width=2)
 
     def shoot(self):
         if self.shooting_cooldown > 0:
