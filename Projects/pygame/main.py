@@ -4,6 +4,8 @@
 import pygame
 from constants import *
 from player import Player
+from asteroidfield import *
+from bullet import Bullet
 
 def initialize_game():
     pygame.init()
@@ -11,7 +13,7 @@ def initialize_game():
     clock = pygame.time.Clock()
     return screen, clock
     
-def game_loop(screen, clock, updatable, drawable):
+def game_loop(screen, clock, updatable, drawable, astroids, asteroid_field, player, bullets):
     running = True
     dt = 0  # Initialize delta time
     while running:    
@@ -29,6 +31,21 @@ def game_loop(screen, clock, updatable, drawable):
         # Update all sprites
         for sprite in updatable:
             sprite.update(dt)
+
+        # Check for collisions
+        for asteroid in astroids:
+            if player.collide(asteroid):
+                running = False
+                print("Game Over")
+                break
+
+        # Check for bullet collisions
+        for bullet in bullets:
+            for asteroid in astroids:
+                if bullet.collide(asteroid):
+                    bullet.kill()
+                    asteroid.split()
+                    break
         
         # Update the display
         pygame.display.flip()
@@ -49,18 +66,32 @@ def main():
     # Create sprite groups
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
+    astroids = pygame.sprite.Group()
+    asteroid_field = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
 
     # Set containers for Player
     Player.containers = (updatable, drawable)
+
+    # Set containers for Asteroid
+    Asteroid.containers = (astroids, updatable, drawable)
+
+    # Set containers for AsteroidField
+    AsteroidField.containers = (updatable,)
+
+    # Set containers for Bullet
+    Bullet.containers = (bullets, updatable, drawable)
 
     # Create player
     x = SCREEN_WIDTH / 2
     y = SCREEN_HEIGHT / 2
     player = Player(x, y, PLAYER_RADIUS)
- 
+    
+    # Create asteroid field
+    asteroid_field = AsteroidField()
     
     # Run the game loop
-    game_loop(screen, clock, updatable, drawable)
+    game_loop(screen, clock, updatable, drawable, astroids, asteroid_field, player, bullets)
     
     # Clean up
     pygame.quit()
