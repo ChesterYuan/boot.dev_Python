@@ -33,11 +33,16 @@ def game_loop(screen, clock, updatable, drawable, astroids, asteroid_field, play
             sprite.update(dt)
 
         # Check for collisions
-        for asteroid in astroids:
-            if player.collide(asteroid):
-                running = False
-                print("Game Over")
-                break
+        if player.respawn_cooldown == 0:
+            for asteroid in astroids:
+                if player.collide(asteroid):
+                    player.lives -= 1
+                    if player.lives > 0:
+                        player.respawn()
+                    else:
+                        running = False
+                        print("Game Over")
+                        break
 
         # Check for bullet collisions
         for bullet in bullets:

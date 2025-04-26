@@ -10,6 +10,8 @@ class Player(CircleShape):
         self.rotation = 0
         self.add(*self.containers)
         self.shooting_cooldown = 0
+        self.lives = 3
+        self.respawn_cooldown = 0
     
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -31,6 +33,10 @@ class Player(CircleShape):
         self.shooting_cooldown -= dt
         if self.shooting_cooldown < 0:
             self.shooting_cooldown = 0
+        if self.respawn_cooldown > 0:
+            self.respawn_cooldown -= dt
+            if self.respawn_cooldown < 0:
+                self.respawn_cooldown = 0
 
     def move(self, dt):
         forward = pygame.Vector2(0, -1).rotate(self.rotation)
@@ -54,6 +60,15 @@ class Player(CircleShape):
         bullet = Bullet(self.position.x, self.position.y, SHOT_RADIUS)
         bullet.velocity = pygame.Vector2(0, -1).rotate(self.rotation) * PLAYER_SHOT_SPEED
         return bullet
+
+    def respawn(self):
+        self.position = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        self.rotation = 0
+        self.respawn_cooldown = 3
+        print(f"Respawning in {self.respawn_cooldown} seconds...")
+    
+
+
         
     
 
